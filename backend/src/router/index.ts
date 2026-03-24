@@ -1,22 +1,16 @@
-// router/index.ts
+import { Router } from "express";
+import authRoutes from "../modules/auth/auth.routes";
+import { authMiddleware } from "../modules/auth/auth.middleware";
 
-import { coursesRoutes } from "../modules/courses/courses.routes"
-import { usersRoutes } from "../modules/users/users.routes"
-import { authMiddleware } from "../core/middlewares/auth.middleware"
+const router = Router();
 
-const allRoutes = [
-  ...coursesRoutes,
-  ...usersRoutes
-]
+router.use("/auth", authRoutes);
 
-export const registerRoutes = (app) => {
-  allRoutes.forEach(route => {
-    const middlewares = []
+router.get("/health", (req, res) => {
+  res.json({ status: "ok" });
+});
 
-    if (route.private) {
-      middlewares.push(authMiddleware)
-    }
-
-    app[route.method](route.path, ...middlewares, route.handler)
-  })
-}
+router.get("/private", authMiddleware, (req, res) => {
+  res.json({ message: "ok" });
+});
+export default router;
